@@ -8,12 +8,15 @@ from fastapi import FastAPI
 
 from api.db_mongo import get_mongo_collection
 from api.db_sql import get_sql_connection
+from api.routes_sql import router as sql_router
 
 app = FastAPI(
     title="I-94 Traffic Time-Series API",
     description="CRUD and time-series endpoints for MySQL and MongoDB.",
     version="0.1.0",
 )
+
+app.include_router(sql_router)
 
 
 @app.get("/health", tags=["health"])
