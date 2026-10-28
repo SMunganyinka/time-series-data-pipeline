@@ -1,0 +1,79 @@
+{
+  "target": "traffic_volume",
+  "model": "XGBRegressor (tuned)",
+  "features": [
+    "temp",
+    "rain_1h",
+    "snow_1h",
+    "clouds_all",
+    "weather_Clear",
+    "weather_Clouds",
+    "weather_Drizzle",
+    "weather_Fog",
+    "weather_Haze",
+    "weather_Mist",
+    "weather_Rain",
+    "weather_Smoke",
+    "weather_Snow",
+    "weather_Squall",
+    "weather_Thunderstorm",
+    "hour_sin",
+    "hour_cos",
+    "dow_sin",
+    "dow_cos",
+    "month_sin",
+    "month_cos",
+    "is_weekend",
+    "is_holiday",
+    "lag_1",
+    "lag_2",
+    "lag_3",
+    "lag_24",
+    "lag_48",
+    "lag_168",
+    "roll_mean_3",
+    "roll_mean_24",
+    "roll_mean_168",
+    "roll_std_24"
+  ],
+  "best_params": {
+    "subsample": 0.6,
+    "reg_lambda": 0.5,
+    "n_estimators": 500,
+    "min_child_weight": 3,
+    "max_depth": 6,
+    "learning_rate": 0.05,
+    "colsample_bytree": 0.7
+  },
+  "train_range": [
+    "2012-10-09 09:00:00",
+    "2017-12-31 23:00:00"
+  ],
+  "test_range": [
+    "2018-01-01 00:00:00",
+    "2018-09-30 23:00:00"
+  ],
+  "test_metrics": {
+    "RMSE": 222.3,
+    "MAE": 141.6,
+    "R2": 0.9873
+  },
+  "preprocessing": {
+    "max_interp_hours": 6,
+    "lags": [
+      1,
+      2,
+      3,
+      24,
+      48,
+      168
+    ],
+    "rolling_windows": [
+      3,
+      24,
+      168
+    ],
+    "temp_min_k": 200,
+    "rain_max_mm": 100
+  }
+}
