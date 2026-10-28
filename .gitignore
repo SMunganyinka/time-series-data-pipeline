@@ -1,0 +1,5 @@
+
+# API secrets
+api/.env
+__pycache__/
+.venv/
