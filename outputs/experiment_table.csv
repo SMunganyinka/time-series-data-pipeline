@@ -1,0 +1,7 @@
+Exp,Model,Features,Hyper-parameters,CV RMSE,Test RMSE,Test MAE,Test R2
+Ref,Seasonal naive (t-168h),1,-,,647.2410139975066,338.6318689729068,0.8925411799895615
+Exp 1,Linear Regression,33 (with lags),StandardScaler + OLS,413.2119198736249,397.64791388257964,280.12716262928245,0.9594391147514345
+Exp 2,Random Forest (default),33 (with lags),"n_estimators=100, max_depth=None",279.62245985880014,235.85422214303057,147.4681968467779,0.985730875788225
+Exp 3,XGBoost (default),33 (with lags),"n_estimators=100, max_depth=6, lr=0.3",278.099215728037,235.083155668473,150.35964073485954,0.985824021955641
+Exp 4,XGBoost (tuned),33 (with lags),"{""subsample"": 0.6, ""reg_lambda"": 0.5, ""n_estimators"": 500, ""min_child_weight"": 3, ""max_depth"": 6, ""learning_rate"": 0.05, ""colsample_bytree"": 0.7}",261.2815520855449,222.25616938679673,141.62009339425276,0.987328802560307
+Exp 5,"XGBoost tuned, NO lag feats",23 (no lags),same as Exp 4,465.82780762692164,372.6612637232909,228.68543678948183,0.9643763419924677
