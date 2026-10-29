@@ -1,0 +1,223 @@
+{
+  "traffic_readings": [
+    {
+      "date_time": {
+        "$date": "2018-09-30T23:00:00Z"
+      },
+      "traffic_volume": 954,
+      "weather": {
+        "weather_main": "Clouds",
+        "category": "cloudy",
+        "temp": 282.12,
+        "rain_1h": 0.0,
+        "snow_1h": 0.0,
+        "clouds_all": 90.0
+      },
+      "calendar": {
+        "date": "2018-09-30",
+        "year": 2018,
+        "month": 9,
+        "hour": 23,
+        "day_of_week": 6,
+        "day_name": "Sunday",
+        "is_weekend": 1,
+        "is_holiday": 0,
+        "holiday_name": null
+      },
+      "is_imputed": 0
+    },
+    {
+      "date_time": {
+        "$date": "2018-09-30T22:00:00Z"
+      },
+      "traffic_volume": 1450,
+      "weather": {
+        "weather_main": "Clouds",
+        "category": "cloudy",
+        "temp": 282.09,
+        "rain_1h": 0.0,
+        "snow_1h": 0.0,
+        "clouds_all": 90.0
+      },
+      "calendar": {
+        "date": "2018-09-30",
+        "year": 2018,
+        "month": 9,
+        "hour": 22,
+        "day_of_week": 6,
+        "day_name": "Sunday",
+        "is_weekend": 1,
+        "is_holiday": 0,
+        "holiday_name": null
+      },
+      "is_imputed": 0
+    },
+    {
+      "date_time": {
+        "$date": "2012-10-08T00:00:00Z"
+      },
+      "traffic_volume": 455,
+      "weather": {
+        "weather_main": "Clouds",
+        "category": "cloudy",
+        "temp": 273.08,
+        "rain_1h": 0.0,
+        "snow_1h": 0.0,
+        "clouds_all": 20.0
+      },
+      "calendar": {
+        "date": "2012-10-08",
+        "year": 2012,
+        "month": 10,
+        "hour": 0,
+        "day_of_week": 0,
+        "day_name": "Monday",
+        "is_weekend": 0,
+        "is_holiday": 1,
+        "holiday_name": "Columbus Day"
+      },
+      "is_imputed": 0
+    }
+  ],
+  "daily_summaries": [
+    {
+      "_id": "2018-09-03",
+      "date": {
+        "$date": "2018-09-03T00:00:00Z"
+      },
+      "day_name": "Monday",
+      "is_weekend": 0,
+      "is_holiday": 1,
+      "holiday_name": "Labor Day",
+      "hours_recorded": 24,
+      "total_traffic": 55770,
+      "avg_traffic": 2323.8,
+      "max_traffic": 4446,
+      "avg_temp_k": 293.99,
+      "total_rain_mm": 7.57,
+      "hourly": [
+        {
+          "hour": 0,
+          "traffic_volume": 962,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 1,
+          "traffic_volume": 694,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 2,
+          "traffic_volume": 421,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 3,
+          "traffic_volume": 310,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 4,
+          "traffic_volume": 325,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 5,
+          "traffic_volume": 590,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 6,
+          "traffic_volume": 1141,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 7,
+          "traffic_volume": 1556,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 8,
+          "traffic_volume": 1995,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 9,
+          "traffic_volume": 2524,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 10,
+          "traffic_volume": 3050,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 11,
+          "traffic_volume": 3616,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 12,
+          "traffic_volume": 3901,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 13,
+          "traffic_volume": 4110,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 14,
+          "traffic_volume": 4446,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 15,
+          "traffic_volume": 4411,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 16,
+          "traffic_volume": 4017,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 17,
+          "traffic_volume": 3900,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 18,
+          "traffic_volume": 3487,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 19,
+          "traffic_volume": 3006,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 20,
+          "traffic_volume": 2627,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 21,
+          "traffic_volume": 2081,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 22,
+          "traffic_volume": 1588,
+          "weather_main": "Rain"
+        },
+        {
+          "hour": 23,
+          "traffic_volume": 1012,
+          "weather_main": "Rain"
+        }
+      ],
+      "is_complete_day": true
+    }
+  ]
+}
