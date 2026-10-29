@@ -1,22 +1,19 @@
 """MongoDB connection.
 
-One client is shared by the whole app. PyMongo handles the pool for us.
+Uses the helpers from Task 2 (mongo/db.py) so we read the same
+collection the same way. One client is shared by the whole app.
 """
-import os
+from pathlib import Path
 
 from dotenv import load_dotenv
-from pymongo import MongoClient
 
-load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
-# Short timeout so a missing server fails fast instead of hanging.
-_client = MongoClient(
-    os.getenv("MONGO_URI", "mongodb://localhost:27017"),
-    serverSelectionTimeoutMS=3000,
-)
+from mongo.db import READINGS, get_client, get_db  # noqa: E402  (needs .env loaded first)
+
+_client = get_client()
 
 
 def get_mongo_collection():
-    """Return the traffic_records collection."""
-    db = _client[os.getenv("MONGO_DB", "traffic_db")]
-    return db[os.getenv("MONGO_COLLECTION", "traffic_records")]
+    """Return the traffic_readings collection (one document per hour)."""
+    return get_db(_client)[READINGS]

@@ -1,14 +1,15 @@
 """MySQL connection.
 
+Settings come from the .env file in the repo root (same file Task 2 uses).
 We open a new connection for each request and close it after.
-This is simple and safe for a small project like ours.
 """
 import os
+from pathlib import Path
 
 import pymysql
 from dotenv import load_dotenv
 
-load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 
 def get_sql_connection():
@@ -20,5 +21,5 @@ def get_sql_connection():
         password=os.getenv("MYSQL_PASSWORD", ""),
         database=os.getenv("MYSQL_DB", "traffic_db"),
         cursorclass=pymysql.cursors.DictCursor,
-        autocommit=True,
+        autocommit=False,  # we commit ourselves, so a POST is all-or-nothing
     )

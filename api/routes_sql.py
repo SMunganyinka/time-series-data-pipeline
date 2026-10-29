@@ -1,7 +1,10 @@
 """MySQL endpoints: CRUD + latest + date range.
 
-Every record is found by its date_time (it is unique, one row per hour).
-All SQL for the API lives in this file.
+Uses the Task 2 schema (sql/01_create_schema.sql):
+  * reads come from the view v_traffic_records (already in the flat JSON shape)
+  * writes go to the tables traffic_records and calendar_days
+
+Every record is found by its date_time (unique, one row per hour).
 """
 from datetime import datetime
 from typing import List
@@ -14,35 +17,26 @@ from api.schemas import TrafficRecord, TrafficRecordUpdate
 
 router = APIRouter(prefix="/sql/records", tags=["MySQL"])
 
-# One SELECT that joins the 3 tables back into the flat API shape.
-SELECT_RECORD = """
-    SELECT t.date_time, t.traffic_volume, t.temp, t.rain_1h, t.snow_1h,
-           t.clouds_all, w.weather_main, c.is_holiday, t.is_imputed
-    FROM traffic_records t
-    JOIN weather_conditions w ON t.weather_id = w.weather_id
-    JOIN calendar_days c ON t.cal_date = c.cal_date
-"""
+SELECT_RECORD = "SELECT * FROM v_traffic_records"
+WEATHER_ID = "(SELECT weather_id FROM weather_conditions WHERE weather_main = %s)"
 
+# MySQL error codes we turn into clear HTTP errors
+DUPLICATE_KEY = 1062
 
-# ---------- small helpers ----------
 
 def _get_one(cur, date_time):
     """Return one record as a dict, or None."""
-    cur.execute(SELECT_RECORD + " WHERE t.date_time = %s", (date_time,))
+    cur.execute(SELECT_RECORD + " WHERE date_time = %s", (date_time,))
     return cur.fetchone()
 
 
-def _weather_id(cur, weather_main):
-    """Find the id of a weather type. Add it if it's new."""
-    cur.execute(
-        "INSERT IGNORE INTO weather_conditions (weather_main) VALUES (%s)",
-        (weather_main,),
-    )
-    cur.execute(
-        "SELECT weather_id FROM weather_conditions WHERE weather_main = %s",
-        (weather_main,),
-    )
-    return cur.fetchone()["weather_id"]
+def _db_error(e):
+    """Turn a MySQL error into an HTTP error."""
+    if isinstance(e, pymysql.IntegrityError):
+        if e.args[0] == DUPLICATE_KEY:
+            return HTTPException(409, "A record for this date_time already exists")
+        return HTTPException(400, f"Rejected by the database: {e.args[1]}")
+    return HTTPException(500, f"MySQL error: {e}")
 
 
 # ---------- time-series queries ----------
@@ -54,7 +48,7 @@ def get_latest():
     conn = get_sql_connection()
     try:
         with conn.cursor() as cur:
-            cur.execute(SELECT_RECORD + " ORDER BY t.date_time DESC LIMIT 1")
+            cur.execute(SELECT_RECORD + " ORDER BY date_time DESC LIMIT 1")
             row = cur.fetchone()
     finally:
         conn.close()
@@ -65,8 +59,8 @@ def get_latest():
 
 @router.get("/range", response_model=List[TrafficRecord])
 def get_range(
-    start: datetime = Query(..., examples=["2018-09-01T00:00:00"]),
-    end: datetime = Query(..., examples=["2018-09-07T23:00:00"]),
+    start: datetime = Query(..., examples=["2018-09-23T00:00:00"]),
+    end: datetime = Query(..., examples=["2018-09-30T23:00:00"]),
     limit: int = Query(1000, ge=1, le=50000, description="max rows to return"),
 ):
     """All hours between start and end (both included), oldest first.
@@ -80,8 +74,8 @@ def get_range(
         with conn.cursor() as cur:
             cur.execute(
                 SELECT_RECORD
-                + " WHERE t.date_time BETWEEN %s AND %s"
-                + " ORDER BY t.date_time LIMIT %s",
+                + " WHERE date_time >= %s AND date_time <= %s"
+                + " ORDER BY date_time LIMIT %s",
                 (start, end, limit),
             )
             rows = cur.fetchall()
@@ -94,34 +88,41 @@ def get_range(
 
 @router.post("", response_model=TrafficRecord, status_code=201)
 def create_record(record: TrafficRecord):
-    """Add a new hourly record."""
+    """Add a new hourly record.
+
+    Two steps in one transaction: make sure the day exists in
+    calendar_days, then insert the hour into traffic_records.
+    """
+    ts = record.date_time
     conn = get_sql_connection()
     try:
         with conn.cursor() as cur:
-            if _get_one(cur, record.date_time):
-                raise HTTPException(409, f"A record for {record.date_time} already exists")
+            if _get_one(cur, ts):
+                raise HTTPException(409, f"A record for {ts} already exists")
 
-            weather_id = _weather_id(cur, record.weather_main)
-
-            # Make sure the day exists in the calendar table
-            cal_date = record.date_time.date()
+            # 1) The day. INSERT IGNORE keeps the row if the day already exists.
             cur.execute(
-                "INSERT IGNORE INTO calendar_days (cal_date, is_holiday) VALUES (%s, %s)",
-                (cal_date, record.is_holiday),
+                """INSERT IGNORE INTO calendar_days
+                   (calendar_date, year, month, day_of_week, day_name,
+                    is_weekend, is_holiday, holiday_name)
+                   VALUES (DATE(%s), YEAR(%s), MONTH(%s), WEEKDAY(%s), DAYNAME(%s),
+                           WEEKDAY(%s) >= 5, %s, NULL)""",
+                (ts, ts, ts, ts, ts, ts, record.is_holiday),
             )
-
+            # 2) The hour
             cur.execute(
-                """INSERT INTO traffic_records
-                   (date_time, cal_date, weather_id, traffic_volume, temp,
-                    rain_1h, snow_1h, clouds_all, is_imputed)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-                (record.date_time, cal_date, weather_id, record.traffic_volume,
-                 record.temp, record.rain_1h, record.snow_1h,
-                 record.clouds_all, record.is_imputed),
+                f"""INSERT INTO traffic_records
+                    (date_time, calendar_date, weather_id, traffic_volume,
+                     temp, rain_1h, snow_1h, clouds_all, is_imputed)
+                    VALUES (%s, DATE(%s), {WEATHER_ID}, %s, %s, %s, %s, %s, %s)""",
+                (ts, ts, record.weather_main, record.traffic_volume, record.temp,
+                 record.rain_1h, record.snow_1h, record.clouds_all, record.is_imputed),
             )
-            return _get_one(cur, record.date_time)
+            conn.commit()
+            return _get_one(cur, ts)
     except pymysql.MySQLError as e:
-        raise HTTPException(500, f"MySQL error: {e}")
+        conn.rollback()
+        raise _db_error(e)
     finally:
         conn.close()
 
@@ -144,8 +145,8 @@ def read_record(date_time: datetime):
 def update_record(date_time: datetime, changes: TrafficRecordUpdate):
     """Change some fields of one hour. Only send what you want to change.
 
-    Note: is_holiday is stored per day, so changing it affects every
-    hour of that date.
+    Note: is_holiday is stored per day (calendar_days), so changing it
+    affects every hour of that date.
     """
     data = changes.model_dump(exclude_none=True)
     if not data:
@@ -157,26 +158,36 @@ def update_record(date_time: datetime, changes: TrafficRecordUpdate):
             if _get_one(cur, date_time) is None:
                 raise HTTPException(404, f"No record for {date_time}")
 
-            # These two live in other tables
-            if "weather_main" in data:
-                data["weather_id"] = _weather_id(cur, data.pop("weather_main"))
+            # is_holiday lives in calendar_days
             if "is_holiday" in data:
+                flag = data.pop("is_holiday")
                 cur.execute(
-                    "UPDATE calendar_days SET is_holiday = %s WHERE cal_date = %s",
-                    (data.pop("is_holiday"), date_time.date()),
+                    """UPDATE calendar_days
+                       SET is_holiday = %s,
+                           holiday_name = IF(%s = 1, holiday_name, NULL)
+                       WHERE calendar_date = DATE(%s)""",
+                    (flag, flag, date_time),
                 )
 
             # Everything else is a column in traffic_records.
             # Column names come from our own model, not the user, so this is safe.
-            if data:
-                sets = ", ".join(f"{col} = %s" for col in data)
+            sets, values = [], []
+            for col, val in data.items():
+                if col == "weather_main":
+                    sets.append(f"weather_id = {WEATHER_ID}")
+                else:
+                    sets.append(f"{col} = %s")
+                values.append(val)
+            if sets:
                 cur.execute(
-                    f"UPDATE traffic_records SET {sets} WHERE date_time = %s",
-                    (*data.values(), date_time),
+                    f"UPDATE traffic_records SET {', '.join(sets)} WHERE date_time = %s",
+                    (*values, date_time),
                 )
+            conn.commit()
             return _get_one(cur, date_time)
     except pymysql.MySQLError as e:
-        raise HTTPException(500, f"MySQL error: {e}")
+        conn.rollback()
+        raise _db_error(e)
     finally:
         conn.close()
 
@@ -188,6 +199,7 @@ def delete_record(date_time: datetime):
     try:
         with conn.cursor() as cur:
             n = cur.execute("DELETE FROM traffic_records WHERE date_time = %s", (date_time,))
+        conn.commit()
     finally:
         conn.close()
     if n == 0:
