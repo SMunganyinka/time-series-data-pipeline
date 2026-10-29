@@ -51,6 +51,11 @@ cd notebooks && jupyter nbconvert --to notebook --execute --inplace 01_eda_and_m
 | **4** | **XGBoost (tuned, selected)** | **261.3** | **222.3** | **141.6** | **0.987** |
 | 5 | Exp 4 without lag/rolling features | 465.8 | 372.7 | 228.7 | 0.964 |
 
+## Key figures
+![Hourly pattern](outputs/figures/q2_seasonality.png)
+![Lag correlations](outputs/figures/q4_lags.png)
+![Model diagnostics](outputs/figures/c_model_diagnostics.png)
+
 ## Team contributions
 | Member | Components |
 |---|---|
