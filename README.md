@@ -54,6 +54,6 @@ cd notebooks && jupyter nbconvert --to notebook --execute --inplace 01_eda_and_m
 ## Team contributions
 | Member | Components |
 |---|---|
-| _name_ | Task 1 - EDA, analytical questions, modelling |
+| _Denyse ishimirwe_ | Task 1 - EDA, analytical questions, modelling |
 | _name_ | _fill in_ |
 | _name_ | _fill in_ |
