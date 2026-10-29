@@ -33,6 +33,23 @@ cd notebooks && jupyter nbconvert --to notebook --execute --inplace 01_eda_and_m
 ```
 (The full run takes about 5-6 minutes, mostly the Random Forest cross-validation.)
 
+## Task 2 - Databases (MySQL + MongoDB)
+Same data (`data/processed/traffic_for_db.csv`) stored two ways. Full design notes, query list and
+the handoff for the API are in [`docs/TASK2_DATABASES.md`](docs/TASK2_DATABASES.md).
+
+* **MySQL** (`sql/`): 3 normalised tables - `weather_conditions`, `calendar_days`, `traffic_records` -
+  plus the view `v_traffic_records`. ERD: [`sql/erd.png`](sql/erd.png).
+* **MongoDB** (`mongo/`): `traffic_readings` (one document per hour, weather and calendar embedded,
+  `$jsonSchema` validator) and `daily_summaries` (one document per day, built by an aggregation pipeline).
+* 7 queries per database, with results in `sql/query_results.md` and `mongo/query_results.md`.
+
+```bash
+cp .env.example .env                              # add your MySQL password / Mongo URI
+mysql -u root -p < sql/01_create_schema.sql
+python sql/load_mysql.py && python sql/run_queries.py
+python mongo/setup_and_load.py && python mongo/queries.py
+```
+
 ## Key preprocessing decisions
 | Problem | Treatment |
 |---|---|
