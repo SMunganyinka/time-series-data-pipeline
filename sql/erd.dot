@@ -1,0 +1,53 @@
+// ERD for traffic_db - render with:  dot -Tpng sql/erd.dot -o sql/erd.png
+digraph traffic_db {
+    graph [rankdir=LR, splines=spline, nodesep=0.9, ranksep=1.6, bgcolor="white",
+           fontname="Helvetica", label="traffic_db - Entity Relationship Diagram (MySQL)",
+           labelloc=t, fontsize=20, pad=0.4];
+    node  [shape=plain, fontname="Helvetica", fontsize=12];
+    edge  [fontname="Helvetica", fontsize=11, color="#444444", penwidth=1.4];
+
+    weather_conditions [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="6">
+      <tr><td bgcolor="#2E5E8C" colspan="3"><font color="white"><b>weather_conditions</b></font></td></tr>
+      <tr><td bgcolor="#F2D492"><b>PK</b></td><td align="left"><b>weather_id</b></td><td align="left" port="weather_id">TINYINT UNSIGNED</td></tr>
+      <tr><td><b>UQ</b></td><td align="left">weather_main</td><td align="left">VARCHAR(20)</td></tr>
+      <tr><td></td><td align="left">category</td><td align="left">VARCHAR(20)</td></tr>
+      <tr><td></td><td align="left">is_precipitation</td><td align="left">TINYINT(1)</td></tr>
+    </table>>];
+
+    calendar_days [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="6">
+      <tr><td bgcolor="#2E5E8C" colspan="3"><font color="white"><b>calendar_days</b></font></td></tr>
+      <tr><td bgcolor="#F2D492"><b>PK</b></td><td align="left"><b>calendar_date</b></td><td align="left" port="calendar_date">DATE</td></tr>
+      <tr><td></td><td align="left">year</td><td align="left">SMALLINT</td></tr>
+      <tr><td></td><td align="left">month</td><td align="left">TINYINT UNSIGNED</td></tr>
+      <tr><td></td><td align="left">day_of_week</td><td align="left">TINYINT UNSIGNED</td></tr>
+      <tr><td></td><td align="left">day_name</td><td align="left">VARCHAR(9)</td></tr>
+      <tr><td></td><td align="left">is_weekend</td><td align="left">TINYINT(1)</td></tr>
+      <tr><td></td><td align="left">is_holiday</td><td align="left">TINYINT(1)</td></tr>
+      <tr><td></td><td align="left">holiday_name</td><td align="left">VARCHAR(50) NULL</td></tr>
+    </table>>];
+
+    traffic_records [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="6">
+      <tr><td bgcolor="#1F7A4D" colspan="3"><font color="white"><b>traffic_records</b></font></td></tr>
+      <tr><td bgcolor="#F2D492"><b>PK</b></td><td align="left"><b>record_id</b></td><td align="left">INT UNSIGNED</td></tr>
+      <tr><td><b>UQ</b></td><td align="left">date_time</td><td align="left">DATETIME</td></tr>
+      <tr><td bgcolor="#BFD7EA" port="calendar_date"><b>FK</b></td><td align="left">calendar_date</td><td align="left">DATE</td></tr>
+      <tr><td bgcolor="#BFD7EA" port="weather_id"><b>FK</b></td><td align="left">weather_id</td><td align="left">TINYINT UNSIGNED</td></tr>
+      <tr><td></td><td align="left">traffic_volume</td><td align="left">INT UNSIGNED</td></tr>
+      <tr><td></td><td align="left">temp</td><td align="left">DECIMAL(6,2)</td></tr>
+      <tr><td></td><td align="left">rain_1h</td><td align="left">DECIMAL(7,2)</td></tr>
+      <tr><td></td><td align="left">snow_1h</td><td align="left">DECIMAL(5,2)</td></tr>
+      <tr><td></td><td align="left">clouds_all</td><td align="left">DECIMAL(5,2)</td></tr>
+      <tr><td></td><td align="left">is_imputed</td><td align="left">TINYINT(1)</td></tr>
+      <tr><td></td><td align="left">created_at</td><td align="left">TIMESTAMP</td></tr>
+      <tr><td></td><td align="left">updated_at</td><td align="left">TIMESTAMP</td></tr>
+    </table>>];
+
+    // one calendar day / weather type  ->  many hourly records
+    calendar_days:calendar_date:e   -> traffic_records:calendar_date:w
+        [dir=both, arrowtail=teetee, arrowhead=crowodot, label="1 day has 0..24 hourly records"];
+    weather_conditions:weather_id:e -> traffic_records:weather_id:w
+        [dir=both, arrowtail=teetee, arrowhead=crowodot, label="1 weather type, many records"];
+}
