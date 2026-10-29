@@ -1,5 +1,5 @@
 
-# API secrets
-api/.env
+# Task 2 - local secrets and caches
+.env
 __pycache__/
 .venv/
