@@ -95,5 +95,5 @@ python mongo/setup_and_load.py && python mongo/queries.py
 |---|---|
 | Denyse Ishimirwe | Task 1 - EDA, analytical questions, modelling |
 | Rwakunda Kaliza Sheila Milena | Task 2 - MySQL + MongoDB design, ERD, queries |
-| Audric Mihigo | Task 3 - CRUD + time-series API (see api/README.md) |
+| Audric Mihigo | Task 3 - CRUD + time-series API |
 | Shakira Munganyinka | Task 4 - forecast script |
