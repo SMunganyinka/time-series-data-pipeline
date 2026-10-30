@@ -93,6 +93,7 @@ python mongo/setup_and_load.py && python mongo/queries.py
 ## Team contributions
 | Member | Components |
 |---|---|
-| _Denyse ishimirwe_ | Task 1 - EDA, analytical questions, modelling |
-| _name_ | _fill in_ |
-| _Shakira Munganyinka_ | _Task 4 Create a Prediction/Forecast Script_ |
+| Denyse Ishimirwe | Task 1 - EDA, analytical questions, modelling |
+| Rwakunda Kaliza Sheila Milena | Task 2 - MySQL + MongoDB design, ERD, queries |
+| Audric Mihigo | Task 3 - CRUD + time-series API (see api/README.md) |
+| Shakira Munganyinka | Task 4 - forecast script |
