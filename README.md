@@ -90,6 +90,18 @@ python mongo/setup_and_load.py && python mongo/queries.py
 ![Lag correlations](outputs/figures/q4_lags.png)
 ![Model diagnostics](outputs/figures/c_model_diagnostics.png)
 
+## Task 3 - CRUD and Time-Series API
+A FastAPI service in api/ that serves the Task 2 databases. It has CRUD endpoints
+(POST, GET, PUT, DELETE) plus latest and date-range endpoints for both MySQL
+(/sql/records) and MongoDB (/mongo/records). Both return the same JSON.
+Full setup and endpoint list: [api/README.md](api/README.md).
+
+bash
+pip install -r api/requirements.txt
+uvicorn api.main:app --reload
+
+Then open http://127.0.0.1:8000/docs to try every endpoint in the browser.
+
 ## Team contributions
 | Member | Components |
 |---|---|
