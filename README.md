@@ -33,6 +33,23 @@ cd notebooks && jupyter nbconvert --to notebook --execute --inplace 01_eda_and_m
 ```
 (The full run takes about 5-6 minutes, mostly the Random Forest cross-validation.)
 
+## Task 4 - Forecast from the API
+
+Start the API and make sure its SQL or MongoDB database contains the processed
+traffic records. Then run the forecast script from the repository root:
+
+```bash
+python scripts/forecast.py --database sql
+# or:
+python scripts/forecast.py --database mongo --timestamp 2018-09-30T23:00:00
+```
+
+The script fetches the selected hour and at least the preceding 168 consecutive
+hours, applies the shared feature engineering in `src/preprocessing.py`, loads
+`models/xgb_traffic_model.joblib`, and prints the predicted and actual traffic
+volume as JSON. It fails clearly if the API data contains a gap because the
+trained model requires complete lag and rolling features.
+
 ## Task 2 - Databases (MySQL + MongoDB)
 Same data (`data/processed/traffic_for_db.csv`) stored two ways. Full design notes, query list and
 the handoff for the API are in [`docs/TASK2_DATABASES.md`](docs/TASK2_DATABASES.md).
